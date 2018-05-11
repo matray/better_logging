@@ -42,6 +42,8 @@ def __drain_logging_queue():
         while __logging_enabled == 1 or not __logging_queue.empty():
             try:
                 log_this = __logging_queue.get(timeout=0.25)
+                if log_this[0] < globals()['__controller_log_level']:
+                    continue
                 cur_time = datetime.datetime.now().strftime("%a %b %d %H:%M:%S.%f")
                 log_file.write(u'{3: <5} {0} [{1:x}] ({2}) {4}\n'.format(
                     cur_time,
@@ -66,6 +68,7 @@ def __stop_logging():
 
 
 atexit.register(__stop_logging)
+__controller_default_level = 0
 
 
 class Controller(object):
@@ -81,6 +84,7 @@ class Controller(object):
             raise RuntimeError("There can only be one logging controller")
         if not globals()['__logging_enabled']:
             globals()['__logging_enabled'] = 1
+        globals()['__controller_default_level'] = globals()['__log_levels_strings'][default_level]
 
 
 class Logger(object):
