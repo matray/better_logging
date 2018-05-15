@@ -36,13 +36,14 @@ def __drain_logging_queue():
     global __logging_enabled
     global __logging_filename
     global __logging_queue
+    global __controller_log_level
     while not __logging_filename and not __logging_enabled == 2:
         time.sleep(0.25)
     with io.open(__logging_filename, mode='a+', encoding='utf-8') as log_file:
         while __logging_enabled == 1 or not __logging_queue.empty():
             try:
                 log_this = __logging_queue.get(timeout=0.25)
-                if log_this[0] < globals()['__controller_log_level']:
+                if log_this[0] < __controller_log_level:
                     continue
                 cur_time = datetime.datetime.now().strftime("%a %b %d %H:%M:%S.%f")
                 log_file.write(u'{3: <5} {0} [{1:x}] ({2}) {4}\n'.format(
